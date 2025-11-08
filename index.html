@@ -54,6 +54,8 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border-radius: 0.5rem;
             overflow: hidden;
+            /* Ensure table width is manageable, but overflow will handle it */
+            min-width: 600px; 
         }
         .workout-table th {
             background-color: #eef2ff; /* Lighter Indigo */
@@ -66,6 +68,13 @@
         }
         .workout-table td {
             padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+            background-color: #fff;
+        }
+        .workout-table tbody tr:last-child td {
+            border-bottom: none;
+        }
         .workout-table td:first-child a {
             font-weight: 500;
             color: #1d4ed8; /* Blue 700 */
@@ -86,7 +95,11 @@
 
     <div class="min-h-screen flex flex-col lg:flex-row">
         <!-- Sidebar Navigation -->
-        <aside class="bg-white lg:w-64 p-4 lg:p-6 shadow-md lg:min-h-screen">
+        <!-- 
+          MOBILE: fixed, top-0, left-0, h-full, z-20, transform -translate-x-full (toggled with JS)
+          DESKTOP: lg:static, lg:transform-none, lg:h-auto, lg:z-auto, lg:w-64
+        -->
+        <aside id="sidebar" class="bg-white w-64 p-4 lg:p-6 shadow-md lg:shadow-md fixed top-0 left-0 h-full z-20 transform -translate-x-full transition-transform lg:static lg:transform-none lg:h-auto lg:z-auto lg:min-h-screen">
             <div class="flex items-center justify-center mb-8 w-full">
                 <!-- Logo -->
                 <img src="./src/assets/final_logo-removebg-preview (1).png" alt="KN0X-FIT Logo" class="h-20 md:h-24 w-auto">
@@ -134,9 +147,23 @@
             </nav>
         </aside>
 
+        <!-- Mobile Overlay -->
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden lg:hidden"></div>
+
         <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8">
-            <!-- Content will be injected here -->
+        <main class="flex-1">
+            <!-- Mobile Header -->
+            <div class="lg:hidden sticky top-0 bg-white shadow-sm p-4 flex items-center z-10">
+                <button id="menu-toggle" class="text-gray-700 text-xl p-2">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1 class="text-lg font-bold text-gray-800 ml-4">KN0X-FIT</h1>
+            </div>
+
+            <!-- Content -->
+            <div id="main-content" class="p-4 sm:p-6 lg:p-8">
+                <!-- Content will be injected here -->
+            </div>
         </main>
     </div>
 
@@ -349,7 +376,7 @@
                 { day: 7, focus: "REST", goals: "Active Recovery (Walking/Stretching)", cardio: "Optional: Light Walk 30 min" }
             ],
             progressiveOverload: {
-                title: "🔑 Key to Quick Results: Progressive Overload",
+                title: "Key to Quick Results: Progressive Overload",
                 text: "Since the client is a beginner, they will experience 'newbie gains.' To leverage this for quick results:",
                 points: [
                     "<strong>Track Everything:</strong> Write down the weight and reps used for every set.",
@@ -443,6 +470,9 @@
 
         const mainContent = document.getElementById('main-content');
         const navigation = document.getElementById('navigation');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const menuToggle = document.getElementById('menu-toggle');
         let macroChart = null;
         const totalWeeks = 4;
         const progressState = {
@@ -462,14 +492,14 @@
             
             mainContent.innerHTML = `
                 <div class="content-fade-in">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome to <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${client.name}!</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome to <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${client.name}!</h2>
                     <p class="text-gray-600 mb-8">Your transformation journey begins now. This plan is specifically designed for your goal of ${client.goal} through a calculated calorie deficit and high-protein intake.</p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMI</p><p class="text-3xl font-bold text-red-500">${client.bmi}</p><p class="font-semibold text-red-500">Obesity Class I</p></div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMR</p><p class="text-3xl font-bold">${client.bmr.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm"><p class="text-sm text-gray-500">TDEE</p><p class="text-3xl font-bold">${client.tdee.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-600"><p class="text-sm text-gray-500">Target Deficit</p><p class="text-3xl font-bold text-indigo-600">${client.calorieTarget.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMI</p><p class="text-3xl font-bold text-red-500">${client.bmi}</p><p class="font-semibold text-red-500">Obesity Class I</p></div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMR</p><p class="text-3xl font-bold">${client.bmr.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-sm text-gray-500">TDEE</p><p class="text-3xl font-bold">${client.tdee.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-2 border-indigo-600"><p class="text-sm text-gray-500">Target Deficit</p><p class="text-3xl font-bold text-indigo-600">${client.calorieTarget.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -590,20 +620,20 @@
             const weekData = dietPlanData.weeks[weekKey];
             mainContent.innerHTML = `
                 <div class="content-fade-in">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Diet Plan - Fat Loss</h2>
-                    <h3 class="text-2xl font-semibold text-gray-700 mb-6">${weekData.title}</h3>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Diet Plan - Fat Loss</h2>
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-700 mb-6">${weekData.title}</h3>
                     <p class="text-gray-600 mb-8 font-medium border-l-4 border-indigo-400 pl-3 py-1 bg-indigo-50 rounded-lg">${weekData.focus}</p>
                     <div class="space-y-6">
                         ${weekData.meals.map(meal => {
                             if (meal.time.includes('Daily Total')) {
                                 return `
                                     <div class="bg-indigo-100 rounded-xl shadow-sm">
-                                        <button class="collapsible-header w-full flex items-center justify-between p-6 focus:outline-none">
-                                            <h3 class="text-xl font-bold text-indigo-800">${meal.time}</h3>
+                                        <button class="collapsible-header w-full flex items-center justify-between p-4 sm:p-6 focus:outline-none">
+                                            <h3 class="text-lg sm:text-xl font-bold text-indigo-800 text-left">${meal.time}</h3>
                                             <i class="fa-solid fa-chevron-down text-indigo-500"></i>
                                         </button>
                                         <div class="collapsible-content border-t border-indigo-300 expanded">
-                                            <div class="p-6">
+                                            <div class="p-4 sm:p-6">
                                                 <p class="font-medium text-indigo-800">${meal.item}</p>
                                                 <p class="text-sm text-indigo-600 mt-2"><strong>Notes:</strong> ${meal.micros}</p>
                                             </div>
@@ -612,8 +642,8 @@
                                 `;
                             } else {
                                 return `
-                                    <div class="bg-white rounded-xl shadow-sm border-l-4 ${meal.color === 'bg-orange-100' ? 'border-orange-500' : meal.color === 'bg-green-100' ? 'border-green-500' : 'border-blue-500' || meal.color === 'bg-gray-100' ? 'border-gray-500': ''} p-6">
-                                        <h3 class="text-xl font-bold text-gray-900 mb-2">${meal.time}</h3>
+                                    <div class="bg-white rounded-xl shadow-sm border-l-4 ${meal.color === 'bg-orange-100' ? 'border-orange-500' : meal.color === 'bg-green-100' ? 'border-green-500' : 'border-blue-500' || meal.color === 'bg-gray-100' ? 'border-gray-500': ''} p-4 sm:p-6">
+                                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">${meal.time}</h3>
                                         <div class="pl-4 border-l-2 border-gray-200 space-y-2">
                                             <ul class="list-disc list-inside space-y-1 text-gray-800">
                                                 ${meal.items.map(item => `<li>${item}</li>`).join('')}
@@ -625,7 +655,7 @@
                                                     Alternative: <span class="ml-1 font-normal">${meal.alternative}</span>
                                                 </p>
                                             </div>` : ''}
-                                            <div class="grid grid-cols-2 mt-4 gap-4">
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 mt-4 gap-4">
                                                 <div class="p-3 bg-indigo-50 rounded-lg">
                                                     <p class="text-sm font-semibold text-indigo-700">Macros Breakdown</p>
                                                     <p class="text-sm text-indigo-600">${meal.macros}</p>
@@ -648,7 +678,7 @@
         function renderKeyNotes() {
             mainContent.innerHTML = `
                 <div class="content-fade-in">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Key Notes for the Diet Plan (Fat Loss)</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Key Notes for the Diet Plan (Fat Loss)</h2>
                     
                     <!-- Nutritional Calculations -->
                     <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
@@ -714,8 +744,6 @@
             `;
         }
 
-        // DELETED: renderTrainingPlan() function removed
-
         // NEW function to render a single workout day
         function renderWorkoutDay(dayIndex) {
             const { detailedStructure, recoveryNote } = trainingPlanData;
@@ -725,36 +753,39 @@
 
             mainContent.innerHTML = `
                 <div class="content-fade-in">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">${day.title}</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">${day.title}</h2>
                     
                     <!-- Detailed Structure -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-6">
                         <p class="text-gray-700 mb-6">${detailedStructure.intro}</p>
                         
-                        <table class="workout-table">
-                            <thead>
-                                <tr>
-                                    <th>Exercise</th>
-                                    <th>Sets × Reps</th>
-                                    <th>Focus</th>
-                                    <th>Note</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${day.exercises.map(ex => `
+                        <!-- Responsive Table Wrapper -->
+                        <div class="overflow-x-auto rounded-lg">
+                            <table class="workout-table">
+                                <thead>
                                     <tr>
-                                        <td>
-                                            <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise tutorial')}" target="_blank" rel="noopener noreferrer">
-                                                ${ex.name} <i class="fa-solid fa-external-link-alt"></i>
-                                            </a>
-                                        </td>
-                                        <td>${ex.setsReps}</td>
-                                        <td>${ex.focus}</td>
-                                        <td>${ex.note}</td>
+                                        <th>Exercise</th>
+                                        <th>Sets × Reps</th>
+                                        <th>Focus</th>
+                                        <th>Note</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    ${day.exercises.map(ex => `
+                                        <tr>
+                                            <td>
+                                                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise tutorial')}" target="_blank" rel="noopener noreferrer">
+                                                    ${ex.name} <i class="fa-solid fa-external-link-alt"></i>
+                                                </a>
+                                            </td>
+                                            <td>${ex.setsReps}</td>
+                                            <td>${ex.focus}</td>
+                                            <td>${ex.note}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Recovery Note -->
@@ -768,7 +799,7 @@
         function renderExplore() {
             mainContent.innerHTML = `
                 <div class="content-fade-in">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Thank you for choosing <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${dietPlanData.client.name}!</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Thank you for choosing <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${dietPlanData.client.name}!</h2>
                     <p class="text-gray-600 mb-8">Your transformation journey begins now, and we're thrilled to be a part of your path to a healthier, stronger, and more confident you. Whether you're a seasoned athlete or just starting out, our program is designed to support you every step of the way.</p>
 
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">Here are other plans that you can choose:</h3>
@@ -792,7 +823,7 @@
                             </p>
                         </div>
                         <!-- Plan 2 -->
-                        <div class="bg-green-50 p-6 rounded-xl shadow-lg flex flex-col items-center text-center border-t-4 border-green-500 transform transition-transform duration-300 scale-105">
+                        <div class="bg-green-50 p-6 rounded-xl shadow-lg flex flex-col items-center text-center border-t-4 border-green-500 transform transition-transform duration-300 md:scale-105">
                             <i class="fa-solid fa-star text-4xl text-green-500 mb-4"></i>
                             <h4 class="text-xl font-bold text-green-600">Total Transformation</h4>
                             <p class="text-sm text-gray-500 mt-2 text-left">Complete diet and workout plan with weekly trainer consultation and daily follow-ups.</p>
@@ -830,7 +861,7 @@
 
                     <div class="text-center mt-12">
                         <a href="https://kn0x-fit.com/" target="_blank" class="text-gray-600 mb-6 font-semibold inline-block text-lg text-red-500 hover:underline transition-colors">KN0X-FIT - Built for Change, Designed for You</a>
-                        <div class="flex justify-center items-center gap-6 mt-4">
+                        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-4">
                             <!-- WhatsApp -->
                             <a href="https://wa.me/919380422603" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-green-500 transition-colors">
                                 <i class="fa-brands fa-whatsapp text-3xl" style="color: #25D366;"></i>
@@ -843,7 +874,7 @@
                             </a>
                             <!-- Instagram -->
                             <a href="https://www.instagram.com/kn0x_fit/profilecard/?igsh=bWFiMzlkanppYTh1" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors">
-                                <i class="fa-brands fa-instagram text-3xl" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf4f7 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);-webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                                <i class="fa-brands fa-instagram text-3xl" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);-webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                                 <span>@KN0X_FIT</span>
                             </a>
                         </div>
@@ -852,6 +883,12 @@
             `;
         }
         
+        function closeMobileMenu() {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            overlay.classList.add('hidden');
+        }
+
         mainContent.addEventListener('click', (e) => {
             const header = e.target.closest('.collapsible-header');
             if (header) {
@@ -860,7 +897,7 @@
                 header.classList.toggle('expanded');
                 content.classList.toggle('expanded');
                 
-                // Close others if open (optional, but good UX for mobile)
+                // Close others if open
                 document.querySelectorAll('.collapsible-header').forEach(otherHeader => {
                     if (otherHeader !== header && otherHeader.classList.contains('expanded')) {
                         otherHeader.classList.remove('expanded');
@@ -894,6 +931,11 @@
                      const parentToggle = document.getElementById('training-toggle');
                      parentToggle.classList.add('active'); // Style parent
                      document.getElementById('training-chevron').classList.add('rotate-180'); // Open chevron
+                 } else {
+                    // If it's a main link, close the training submenu
+                    document.getElementById('training-submenu').classList.add('hidden');
+                    document.getElementById('training-toggle').classList.remove('active');
+                    document.getElementById('training-chevron').classList.remove('rotate-180');
                  }
             }
         }
@@ -918,6 +960,7 @@
             // Handle All Other Navigation Link Clicks
             const view = link.dataset.view;
             setActiveLink(view); 
+            closeMobileMenu(); // Close menu on any navigation
 
             if (view === 'dashboard') {
                 renderDashboard();
@@ -932,6 +975,18 @@
                 renderWorkoutDay(dayIndex);
             }
         });
+
+        // Mobile Menu Toggling
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent click from bubbling
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            overlay.classList.remove('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            closeMobileMenu();
+        });
         
         setActiveLink('dashboard');
         renderDashboard();
@@ -939,3 +994,4 @@
     </script>
 </body>
 </html>
+```eof
