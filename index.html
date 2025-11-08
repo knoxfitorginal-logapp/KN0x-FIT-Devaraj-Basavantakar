@@ -106,6 +106,8 @@
             margin-left: 0.25rem;
             opacity: 0.6;
         }
+        
+        /* Gemini Feature Styles REMOVED */
 
     </style>
 </head>
@@ -117,7 +119,7 @@
           MOBILE: fixed, top-0, left-0, h-full, z-20, transform -translate-x-full (toggled with JS)
           DESKTOP: lg:static, lg:transform-none, lg:h-auto, lg:z-auto, lg:w-64
         -->
-        <aside id="sidebar" class="bg-white w-64 p-4 lg:p-6 shadow-md lg:shadow-md fixed top-0 left-0 h-full z-20 transform -translate-x-full transition-transform lg:static lg:transform-none lg:h-auto lg:z-auto lg:min-h-screen">
+        <aside id="sidebar" class="bg-white w-64 p-4 lg:p-6 shadow-md lg:shadow-md fixed top-0 left-0 h-full z-20 transform -translate-x-full transition-transform lg:static lg:transform-none lg:h-auto lg:z-auto lg:min-h-screen overflow-y-auto">
             <div class="flex items-center justify-center mb-8 w-full">
                 <!-- Logo -->
                 <img src="./src/assets/final_logo-removebg-preview (1).png" alt="KN0X-FIT Logo" class="h-20 md:h-24 w-auto">
@@ -175,7 +177,7 @@
                 <button id="menu-toggle" class="text-gray-700 text-xl p-2">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <h1 class="text-lg font-bold text-gray-800 ml-4">KN0X-FIT</h1>
+                <img src="./src/assets/final_logo-removebg-preview (1).png" alt="KN0X-FIT Logo" class="h-12 w-auto ml-4">
             </div>
 
             <!-- Content -->
@@ -184,6 +186,9 @@
             </div>
         </main>
     </div>
+
+    <!-- REMOVED: Gemini API Modal -->
+
 
     <script>
         const dietPlanData = {
@@ -491,6 +496,8 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         const menuToggle = document.getElementById('menu-toggle');
+        // REMOVED: Gemini Modal variables
+        
         let macroChart = null;
         const totalWeeks = 4;
         const progressState = {
@@ -659,9 +666,14 @@
                                     </div>
                                 `;
                             } else {
+                                // NEW: Pass data attributes to the swap button
+                                const itemsJson = JSON.stringify(meal.items);
                                 return `
                                     <div class="bg-white rounded-xl shadow-sm border-l-4 ${meal.color === 'bg-orange-100' ? 'border-orange-500' : meal.color === 'bg-green-100' ? 'border-green-500' : 'border-blue-500' || meal.color === 'bg-gray-100' ? 'border-gray-500': ''} p-4 sm:p-6">
-                                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">${meal.time}</h3>
+                                        <div class="flex justify-between items-start mb-2">
+                                            <h3 class="text-lg sm:text-xl font-bold text-gray-900">${meal.time}</h3>
+                                            <!-- REMOVED: Swap Meal Button -->
+                                        </div>
                                         <div class="pl-4 border-l-2 border-gray-200 space-y-2">
                                             <ul class="list-disc list-inside space-y-1 text-gray-800">
                                                 ${meal.items.map(item => `
@@ -914,7 +926,12 @@
             overlay.classList.add('hidden');
         }
 
+        // --- REMOVED: Gemini API Functions ---
+
+
         mainContent.addEventListener('click', (e) => {
+            // --- REMOVED: Handle Gemini Swap Button Click ---
+
             const header = e.target.closest('.collapsible-header');
             if (header) {
                 const content = header.nextElementSibling;
@@ -1012,6 +1029,8 @@
         overlay.addEventListener('click', () => {
             closeMobileMenu();
         });
+
+        // REMOVED: Close modal event listener
         
         setActiveLink('dashboard');
         renderDashboard();
