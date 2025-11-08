@@ -25,6 +25,11 @@
             color: white;
             font-weight: 600;
         }
+        /* Add active state for mobile tap feedback */
+        .nav-link:active {
+            transform: scale(0.95);
+            opacity: 0.9;
+        }
         .content-fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
@@ -90,24 +95,29 @@
             opacity: 0.6;
         }
         
-        /* Style for new recipe links in diet plan */
-        .meal-item-link {
-            color: #1d4ed8; /* Blue 700 */
-            font-weight: 500;
-            text-decoration: none;
-            transition: color 0.2s ease-in-out;
+        /* Helper class for tap feedback */
+        .tap-effect:active {
+            transform: scale(0.95);
+            filter: brightness(0.95);
+            transition: transform 0.1s ease;
         }
-        .meal-item-link:hover {
-            color: #1e3a8a; /* Blue 900 */
-            text-decoration: underline;
+
+        /* Scroll hint for mobile tables */
+        .scroll-hint {
+            display: none; /* Hidden by default */
         }
-        .meal-item-link .fa-external-link-alt {
-            font-size: 0.75rem;
-            margin-left: 0.25rem;
-            opacity: 0.6;
+        @media (max-width: 768px) {
+            .scroll-hint {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+                color: #4b5563; /* gray-600 */
+                margin-bottom: 0.5rem;
+                padding-right: 0.25rem;
+            }
         }
-        
-        /* Gemini Feature Styles REMOVED */
 
     </style>
 </head>
@@ -174,7 +184,7 @@
         <main class="flex-1">
             <!-- Mobile Header -->
             <div class="lg:hidden sticky top-0 bg-white shadow-sm p-4 flex items-center z-10">
-                <button id="menu-toggle" class="text-gray-700 text-xl p-2">
+                <button id="menu-toggle" class="text-indigo-600 text-2xl p-2">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <img src="./src/assets/final_logo-removebg-preview (1).png" alt="KN0X-FIT Logo" class="h-12 w-auto ml-4">
@@ -517,14 +527,46 @@
             
             mainContent.innerHTML = `
                 <div class="content-fade-in">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome to <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${client.name}!</h2>
-                    <p class="text-gray-600 mb-8">Your transformation journey begins now. This plan is specifically designed for your goal of ${client.goal} through a calculated calorie deficit and high-protein intake.</p>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome, ${client.name}!</h2>
+                    <p class="text-gray-600 mb-8">Your plan for ${client.goal} is ready. Let's get started.</p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMI</p><p class="text-3xl font-bold text-red-500">${client.bmi}</p><p class="font-semibold text-red-500">Obesity Class I</p></div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMR</p><p class="text-3xl font-bold">${client.bmr.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm"><p class="text-sm text-gray-500">TDEE</p><p class="text-3xl font-bold">${client.tdee.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
-                        <div class="bg-white p-5 rounded-xl shadow-sm border-2 border-indigo-600"><p class="text-sm text-gray-500">Target Deficit</p><p class="text-3xl font-bold text-indigo-600">${client.calorieTarget.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+                        <!-- BMI Metric Card -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 mb-3">
+                                <i class="fa-solid fa-weight-scale text-xl text-red-600"></i>
+                            </div>
+                            <p class="text-sm text-gray-500">BMI</p>
+                            <p class="text-2xl font-bold text-red-500">${client.bmi}</p>
+                            <p class="text-sm font-semibold text-red-500">Obesity I</p>
+                        </div>
+                        <!-- BMR Metric Card -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100 mb-3">
+                                <i class="fa-solid fa-fire text-xl text-orange-600"></i>
+                            </div>
+                            <p class="text-sm text-gray-500">BMR (Rest)</p>
+                            <p class="text-2xl font-bold">${client.bmr.toFixed(0)}</p>
+                            <p class="text-sm font-semibold text-gray-500">kcal</p>
+                        </div>
+                        <!-- TDEE Metric Card -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 mb-3">
+                                <i class="fa-solid fa-person-running text-xl text-green-600"></i>
+                            </div>
+                            <p class="text-sm text-gray-500">TDEE (Active)</p>
+                            <p class="text-2xl font-bold">${client.tdee.toFixed(0)}</p>
+                            <p class="text-sm font-semibold text-gray-500">kcal</p>
+                        </div>
+                        <!-- Target Metric Card -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col border-2 border-indigo-600">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 mb-3">
+                                <i class="fa-solid fa-bullseye text-xl text-indigo-600"></i>
+                            </div>
+                            <p class="text-sm text-gray-500">Target Deficit</p>
+                            <p class="text-2xl font-bold text-indigo-600">${client.calorieTarget.toFixed(0)}</p>
+                            <p class="text-sm font-semibold text-indigo-600">kcal</p>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -551,7 +593,7 @@
                         <h3 class="text-xl font-bold mb-4">Progress Tracker</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             ${progressState.completionStatus.map((completed, index) => `
-                                <button data-week="${index + 1}" class="week-tracker-btn flex items-center justify-center p-4 rounded-lg shadow-sm transition-all duration-300 ${completed ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700'}">
+                                <button data-week="${index + 1}" class="week-tracker-btn tap-effect flex items-center justify-center p-4 rounded-lg shadow-sm transition-all duration-300 ${completed ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700'}">
                                     <i class="fa-solid ${completed ? 'fa-check-circle' : 'fa-circle'} mr-2"></i> Week ${index + 1}
                                 </button>
                             `).join('')}
@@ -653,7 +695,7 @@
                             if (meal.time.includes('Daily Total')) {
                                 return `
                                     <div class="bg-indigo-100 rounded-xl shadow-sm">
-                                        <button class="collapsible-header w-full flex items-center justify-between p-4 sm:p-6 focus:outline-none">
+                                        <button class="collapsible-header tap-effect w-full flex items-center justify-between p-4 sm:p-6 focus:outline-none">
                                             <h3 class="text-lg sm:text-xl font-bold text-indigo-800 text-left">${meal.time}</h3>
                                             <i class="fa-solid fa-chevron-down text-indigo-500"></i>
                                         </button>
@@ -666,13 +708,20 @@
                                     </div>
                                 `;
                             } else {
+                                // Add meal-specific icons
+                                let mealIcon = 'fa-utensils'; // Default
+                                if (meal.time.includes('Breakfast')) mealIcon = 'fa-sun';
+                                if (meal.time.includes('Dinner')) mealIcon = 'fa-moon';
+
                                 // NEW: Pass data attributes to the swap button
                                 const itemsJson = JSON.stringify(meal.items);
                                 return `
                                     <div class="bg-white rounded-xl shadow-sm border-l-4 ${meal.color === 'bg-orange-100' ? 'border-orange-500' : meal.color === 'bg-green-100' ? 'border-green-500' : 'border-blue-500' || meal.color === 'bg-gray-100' ? 'border-gray-500': ''} p-4 sm:p-6">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <h3 class="text-lg sm:text-xl font-bold text-gray-900">${meal.time}</h3>
-                                            <!-- REMOVED: Swap Meal Button -->
+                                        <div class="flex justify-between items-start mb-3">
+                                            <h3 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-3">
+                                                <i class="fa-solid ${mealIcon} text-lg ${meal.color === 'bg-orange-100' ? 'text-orange-500' : meal.color === 'bg-green-100' ? 'text-green-500' : 'text-blue-500'}"></i>
+                                                ${meal.time}
+                                            </h3>
                                         </div>
                                         <div class="pl-4 border-l-2 border-gray-200 space-y-2">
                                             <ul class="list-disc list-inside space-y-1 text-gray-800">
@@ -794,10 +843,16 @@
                     
                     <!-- Detailed Structure -->
                     <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-6">
-                        <p class="text-gray-700 mb-6">${detailedStructure.intro}</p>
+                        <p class="text-gray-700 mb-4">${detailedStructure.intro}</p>
+                        
+                        <!-- NEW: Scroll Hint for Mobile -->
+                        <div class="scroll-hint">
+                            <span>Scroll for more details</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
                         
                         <!-- Responsive Table Wrapper -->
-                        <div class="overflow-x-auto rounded-lg">
+                        <div class="overflow-x-auto rounded-lg border">
                             <table class="workout-table">
                                 <thead>
                                     <tr>
@@ -900,17 +955,17 @@
                         <a href="https://kn0x-fit.com/" target="_blank" class="text-gray-600 mb-6 font-semibold inline-block text-lg text-red-500 hover:underline transition-colors">KN0X-FIT - Built for Change, Designed for You</a>
                         <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-4">
                             <!-- WhatsApp -->
-                            <a href="https://wa.me/919380422603" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-green-500 transition-colors">
+                            <a href="https://wa.me/919380422603" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-green-500 transition-colors tap-effect">
                                 <i class="fa-brands fa-whatsapp text-3xl" style="color: #25D366;"></i>
                                 <span>+91 9380422603</span>
                             </a>
                             <!-- Email -->
-                            <a href="mailto:info@kn0x-fit.com" class="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors">
+                            <a href="mailto:info@kn0x-fit.com" class="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors tap-effect">
                                 <i class="fa-solid fa-envelope text-3xl" style="color: #0072C6;"></i>
                                 <span>info@kn0x-fit.com</span>
                             </a>
                             <!-- Instagram -->
-                            <a href="https://www.instagram.com/kn0x_fit/profilecard/?igsh=bWFiMzlkanppYTh1" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors">
+                            <a href="https://www.instagram.com/kn0x_fit/profilecard/?igsh=bWFiMzlkanppYTh1" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors tap-effect">
                                 <i class="fa-brands fa-instagram text-3xl" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf4f7 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);-webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                                 <span>@KN0X_FIT</span>
                             </a>
