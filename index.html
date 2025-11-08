@@ -89,6 +89,24 @@
             margin-left: 0.25rem;
             opacity: 0.6;
         }
+        
+        /* Style for new recipe links in diet plan */
+        .meal-item-link {
+            color: #1d4ed8; /* Blue 700 */
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+        }
+        .meal-item-link:hover {
+            color: #1e3a8a; /* Blue 900 */
+            text-decoration: underline;
+        }
+        .meal-item-link .fa-external-link-alt {
+            font-size: 0.75rem;
+            margin-left: 0.25rem;
+            opacity: 0.6;
+        }
+
     </style>
 </head>
 <body class="text-gray-800">
@@ -196,8 +214,8 @@
                         {
                             time: "Meal 1: Breakfast (approx 850 kcal)",
                             items: [
-                                "Ragi Dosa (Minimal oil) - 3 medium (approx 150 g batter).",
-                                "Coconut/Peanut Chutney (minimal oil) - 1 small bowl (Implied side)."
+                                { name: "Ragi Dosa", details: "(Minimal oil) - 3 medium (approx 150 g batter)" },
+                                { name: "Coconut/Peanut Chutney", details: "(minimal oil) - 1 small bowl (Implied side)" }
                             ],
                             macros: "P:50 g, F:20 g, C:110 g",
                             micros: "Iron, Calcium (from Ragi), Fiber",
@@ -207,9 +225,9 @@
                         {
                             time: "Meal 2: Lunch (approx 950 kcal)",
                             items: [
-                                "Chicken Curry (Lean breast, low-fat/yogurt base) - 150 g cooked chicken.",
-                                "Brown Rice/Parboiled Rice - 2.5 cups cooked (approx 250 g cooked).",
-                                "Tawa-fried Fish (Kingfish/Surmai, minimal oil) - 180 g cooked weight.",
+                                { name: "Chicken Curry", details: "(Lean breast, low-fat/yogurt base) - 150 g cooked chicken" },
+                                { name: "Brown Rice/Parboiled Rice", details: "2.5 cups cooked (approx 250 g cooked)" },
+                                { name: "Tawa-fried Fish (Kingfish/Surmai)", details: "(minimal oil) - 180 g cooked weight" }
                             ],
                             macros: "P:76 g, F:35 g, C:95 g",
                             micros: "B Vitamins, Niacin, Healthy Fats, Manganese, Magnesium, Selenium, Omega-3 Fatty Acids, Vitamin D",
@@ -219,10 +237,10 @@
                         {
                             time: "Meal 3: Dinner (approx 879 kcal)",
                             items: [
-                                "Sambar/Rasam (with extra lentils and vegetables) - 1 large bowl.",
-                                "Whole Wheat Chapati/Roti or Ragi Mudde - 4 medium servings.",
-                                "Egg Bhurji/Scramble - 4 whole eggs + 3 egg whites (minimal oil).",
-                                "Vegetable Stir-Fry (e.g., green beans, carrots) - 1 large bowl."
+                                { name: "Sambar/Rasam", details: "(with extra lentils and vegetables) - 1 large bowl" },
+                                { name: "Whole Wheat Chapati/Roti or Ragi Mudde", details: "4 medium servings" },
+                                { name: "Egg Bhurji/Scramble", details: "4 whole eggs + 3 egg whites (minimal oil)" },
+                                { name: "Vegetable Stir-Fry", details: "(e.g., green beans, carrots) - 1 large bowl" }
                             ],
                             macros: "P:60 g, F:19 g, C:112 g",
                             micros: "Folic Acid, Potassium, Whole Grain Fiber, Vitamin B6, Choline, Complete Protein, Vitamin A/C/K",
@@ -239,9 +257,9 @@
                         {
                             time: "Meal 1: Breakfast (approx 850 kcal)",
                             items: [
-                                "Idli (Made with less oil/fermented batter) - 4 medium idlis.",
-                                "Tawa-Fried Eggs (2 whole eggs + 2 egg whites) - minimal oil, seasoned with pepper/salt.", // Replacement 1
-                                "Tomato/Onion Chutney (minimal oil) - 1 small bowl."
+                                { name: "Idli", details: "(Made with less oil/fermented batter) - 4 medium idlis" },
+                                { name: "Tawa-Fried Eggs", details: "(2 whole eggs + 2 egg whites) - minimal oil, seasoned with pepper/salt" },
+                                { name: "Tomato/Onion Chutney", details: "(minimal oil) - 1 small bowl" }
                             ],
                             macros: "P:53 g, F:22 g, C:105 g",
                             micros: "Probiotics, B Vitamins, Choline, High-Quality Protein, Iron, Lycopene, Vitamin C",
@@ -251,9 +269,9 @@
                         {
                             time: "Meal 2: Lunch (approx 950 kcal)",
                             items: [
-                                "Brown Rice Vegetable Biryani (Less oil, extra veggies) - 3 cups cooked.",
-                                "Tawa-fried Paneer (Marinated, minimal oil) - 150 g paneer.",
-                                "Raita/Curd (Low-fat yogurt with cucumber) - 1 small bowl."
+                                { name: "Brown Rice Vegetable Biryani", details: "(Less oil, extra veggies) - 3 cups cooked" },
+                                { name: "Tawa-fried Paneer", details: "(Marinated, minimal oil) - 150 g paneer" },
+                                { name: "Raita/Curd", details: "(Low-fat yogurt with cucumber) - 1 small bowl" }
                             ],
                             macros: "P:72 g, F:33 g, C:100 g",
                             micros: "Zinc, Potassium, B Vitamins, Calcium, Casein Protein, Probiotics, Hydration",
@@ -263,9 +281,9 @@
                         {
                             time: "Meal 3: Dinner (approx 879 kcal)",
                             items: [
-                                "Besan Cheela/Pancake (Chickpea flour) - 3 medium (mixed with veggies).", // Replacement 2
-                                "Daal Tadka (Split yellow lentils) - 1.5 bowls cooked.",
-                                "Cucumber and Carrot Salad - 1 large bowl."
+                                { name: "Besan Cheela/Pancake", details: "(Chickpea flour) - 3 medium (mixed with veggies)" },
+                                { name: "Daal Tadka", details: "(Split yellow lentils) - 1.5 bowls cooked" },
+                                { name: "Cucumber and Carrot Salad", details: "1 large bowl" }
                             ],
                             macros: "P:61 g, F:19 g, C:112 g",
                             micros: "Chickpea Protein, Fiber, Folic Acid, Lentil Protein, Magnesium, Vitamin K, Hydration",
@@ -282,9 +300,9 @@
                         {
                             time: "Meal 1: Breakfast (approx 850 kcal)",
                             items: [
-                                "Besan Cheela (Chickpea flour pancake) - 3 medium with grated vegetables.",
-                                "Boiled Eggs - 2 whole eggs + 2 whites.",
-                                "Mint/Coriander Chutney - 1 small bowl."
+                                { name: "Besan Cheela", details: "(Chickpea flour pancake) - 3 medium with grated vegetables" },
+                                { name: "Boiled Eggs", details: "2 whole eggs + 2 whites" },
+                                { name: "Mint/Coriander Chutney", details: "1 small bowl" }
                             ],
                             macros: "P:55 g, F:21 g, C:107 g",
                             micros: "Chickpea Protein, Folate, Vitamin D, Choline, Vitamin K, Antioxidants",
@@ -294,9 +312,9 @@
                         {
                             time: "Meal 2: Lunch (approx 950 kcal)",
                             items: [
-                                "Barley/Jowar Roti (or mixed millet) - 4 medium rotis.",
-                                "Quick South Indian Pepper Chicken Masala (Low-fat, tomato-based) - 180 g chicken breast.",
-                                "Green Salad (Onion, tomato, cucumber) - 1 large bowl."
+                                { name: "Barley/Jowar Roti", details: "(or mixed millet) - 4 medium rotis" },
+                                { name: "Quick South Indian Pepper Chicken Masala", details: "(Low-fat, tomato-based) - 180 g chicken breast" },
+                                { name: "Green Salad", details: "(Onion, tomato, cucumber) - 1 large bowl" }
                             ],
                             macros: "P:71 g, F:34 g, C:100 g",
                             micros: "High Fiber, Manganese, Phosphorus, Potassium, Lean Protein, Hydration, Vitamin C, Antioxidants (Pepper)",
@@ -306,9 +324,9 @@
                         {
                             time: "Meal 3: Dinner (approx 879 kcal)",
                             items: [
-                                "Whole Wheat Roti - 3 medium rotis.",
-                                "Channa Masala (Chickpea curry, minimal oil) - 1.5 bowls cooked.",
-                                "Low-fat Curd - 1 cup."
+                                { name: "Whole Wheat Roti", details: "3 medium rotis" },
+                                { name: "Channa Masala", details: "(Chickpea curry, minimal oil) - 1.5 bowls cooked" },
+                                { name: "Low-fat Curd", details: "1 cup" }
                             ],
                             macros: "P:60 g, F:19 g, C:110 g",
                             micros: "Fiber, B Vitamins, Plant-based Protein, Iron, Zinc, Calcium, Probiotics",
@@ -325,9 +343,9 @@
                         {
                             time: "Meal 1: Breakfast (approx 850 kcal)",
                             items: [
-                                "Ragi Dosa (Minimal oil) - 3 medium (approx 150g batter).", 
-                                "Sprouts Salad (Mixed bean sprouts, boiled) - 1 cup.",
-                                "Scrambled Egg Whites - 6 egg whites."
+                                { name: "Ragi Dosa", details: "(Minimal oil) - 3 medium (approx 150g batter)" },
+                                { name: "Sprouts Salad", details: "(Mixed bean sprouts, boiled) - 1 cup" },
+                                { name: "Scrambled Egg Whites", details: "6 egg whites" }
                             ],
                             macros: "P:52 g, F:21 g, C:108 g",
                             micros: "Iron, Quick Energy, Vitamin C, Live Enzymes, Pure Protein, Calcium (Ragi)",
@@ -337,9 +355,9 @@
                         {
                             time: "Meal 2: Lunch (approx 950 kcal)",
                             items: [
-                                "Less Rice + More Curry (Parboiled Rice) - 2 cups cooked (approx 200 g cooked).",
-                                "Grilled Chicken/Tofu Masala (No added oil after grilling) - 200 g grilled meat/tofu.",
-                                "Rasam (Clear, light soup) - 1 large bowl."
+                                { name: "Parboiled Rice", details: "(Less Rice + More Curry) - 2 cups cooked (approx 200 g cooked)" },
+                                { name: "Grilled Chicken/Tofu Masala", details: "(No added oil after grilling) - 200 g grilled meat/tofu" },
+                                { name: "Rasam", details: "(Clear, light soup) - 1 large bowl" }
                             ],
                             macros: "P:73 g, F:34 g, C:100 g",
                             micros: "Potassium, B Vitamins, High Quality Protein, Selenium, Digestion, Hydration",
@@ -349,9 +367,9 @@
                         {
                             time: "Meal 3: Dinner (approx 879 kcal)",
                             items: [
-                                "Plain Ragi Dosa (minimal oil) - 3 medium dosas.", 
-                                "Palak Daal (Spinach and Lentil Curry) - 1.5 bowls cooked.",
-                                "Side of low-fat yogurt - 1 cup."
+                                { name: "Plain Ragi Dosa", details: "(minimal oil) - 3 medium dosas" },
+                                { name: "Palak Daal", details: "(Spinach and Lentil Curry) - 1.5 bowls cooked" },
+                                { name: "Side of low-fat yogurt", details: "1 cup" }
                             ],
                             macros: "P:61 g, F:19 g, C:109 g",
                             micros: "Balanced Carb/Protein, Calcium, Iron, Vitamin A, Probiotics",
@@ -646,7 +664,14 @@
                                         <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">${meal.time}</h3>
                                         <div class="pl-4 border-l-2 border-gray-200 space-y-2">
                                             <ul class="list-disc list-inside space-y-1 text-gray-800">
-                                                ${meal.items.map(item => `<li>${item}</li>`).join('')}
+                                                ${meal.items.map(item => `
+                                                    <li>
+                                                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(item.name + ' recipe south indian')}" target="_blank" rel="noopener noreferrer" class="meal-item-link">
+                                                            ${item.name} <i class="fa-solid fa-external-link-alt"></i>
+                                                        </a> 
+                                                        ${item.details ? `- ${item.details}` : ''}
+                                                    </li>
+                                                `).join('')}
                                             </ul>
                                             ${meal.alternative && meal.alternative !== 'None listed.' ? `
                                             <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -774,7 +799,7 @@
                                     ${day.exercises.map(ex => `
                                         <tr>
                                             <td>
-                                                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise tutorial')}" target="_blank" rel="noopener noreferrer">
+                                                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise tutorial')}" target="_blank" rel="noopener noreferrer" class="meal-item-link">
                                                     ${ex.name} <i class="fa-solid fa-external-link-alt"></i>
                                                 </a>
                                             </td>
@@ -874,7 +899,7 @@
                             </a>
                             <!-- Instagram -->
                             <a href="https://www.instagram.com/kn0x_fit/profilecard/?igsh=bWFiMzlkanppYTh1" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors">
-                                <i class="fa-brands fa-instagram text-3xl" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);-webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                                <i class="fa-brands fa-instagram text-3xl" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf4f7 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);-webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                                 <span>@KN0X_FIT</span>
                             </a>
                         </div>
@@ -994,4 +1019,3 @@
     </script>
 </body>
 </html>
-```eof
