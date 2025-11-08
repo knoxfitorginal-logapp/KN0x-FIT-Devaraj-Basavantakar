@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KN0X-FIT Interactive Diet Plan</title>
+    <!-- Chosen Palette: Cool Gray & Slate Blue -->
+    <!-- Application Structure Plan: A dashboard-style SPA with a main overview and tabbed navigation for each of the 4 weeks, a new "Key Notes" section, a new "Training Plan" section, and a final "Explore" page. The user flow is: Overview -> Select Week -> View Daily Meals -> Read Key Notes -> View Training Plan -> Explore other services. -->
+    <!-- Visualization & Content Choices: 1. Client Metrics (BMI/BMR/TDEE): Goal=Inform, Method=Styled HTML cards with a CSS bar for BMI, Interaction=None, Justification=Clear, static display of core data. 2. Macro Split: Goal=Inform, Method=Donut Chart, Interaction=Hover for tooltips, Justification=Visually represents dietary proportions effectively, Library=Chart.js. 3. Weekly Plans: Goal=Organize/Inform, Method=Tabs with meal cards, Interaction=Click tabs to switch weeks. 4. Key Notes: Goal=Educate/Inform, Method=Grid of stylized cards with icons and text, Interaction=None, Justification=Breaks down complex information into digestible, easy-to-scan sections. 5. Explore Page: Goal=Engage/Inform/Convert, Method=Styled cards with plan details and interactive contact links, Interaction=Clickable links to social media and contact info. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link.active {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+        }
+        .content-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .collapsible-content.expanded {
+            max-height: 700px; /* Increased max height to accommodate more detailed meal lists */
+        }
+        .collapsible-header i {
+            transition: transform 0.3s ease-in-out;
+        }
+        .collapsible-header.expanded i {
+            transform: rotate(180deg);
+        }
+        /* Custom styles for the Workout Plan table */
+        .workout-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .workout-table th {
+            background-color: #eef2ff; /* Lighter Indigo */
+            color: #4338ca; /* Indigo 700 */
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        .workout-table td {
+            padding: 0.75rem 1rem;
+        .workout-table td:first-child a {
+            font-weight: 500;
+            color: #1d4ed8; /* Blue 700 */
+            transition: color 0.2s ease-in-out;
+        }
+        .workout-table td:first-child a:hover {
+            color: #1e3a8a; /* Blue 900 */
+            text-decoration: underline;
+        }
+        .workout-table td .fa-external-link-alt {
+            font-size: 0.75rem;
+            margin-left: 0.25rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="min-h-screen flex flex-col lg:flex-row">
+        <!-- Sidebar Navigation -->
+        <aside class="bg-white lg:w-64 p-4 lg:p-6 shadow-md lg:min-h-screen">
+            <div class="flex items-center justify-center mb-8 w-full">
+                <!-- Logo -->
+                <img src="./src/assets/final_logo-removebg-preview (1).png" alt="KN0X-FIT Logo" class="h-20 md:h-24 w-auto">
+            </div>
+            <nav id="navigation" class="space-y-2">
+                <a href="#" data-view="dashboard" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <i class="fa-solid fa-gauge-high w-5"></i> Dashboard
+                </a>
+                <a href="#" data-view="week1" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <i class="fa-solid fa-calendar-day w-5"></i> Week 1
+                </a>
+                <a href="#" data-view="week2" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <i class="fa-solid fa-calendar-week w-5"></i> Week 2
+                </a>
+                <a href="#" data-view="week3" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <i class="fa-solid fa-calendar-alt w-5"></i> Week 3
+                </a>
+                <a href="#" data-view="week4" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <i class="fa-solid fa-calendar w-5"></i> Week 4
+                </a>
+                <a href="#" data-view="keyNotes" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <i class="fa-solid fa-clipboard-list w-5"></i> Key Notes
+                </a>
+                
+                <!-- MODIFIED: Training Plan Link is now a Toggle -->
+                <a href="#" id="training-toggle" class="nav-link flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <span class="flex items-center gap-3">
+                        <i class="fa-solid fa-dumbbell w-5"></i> Training Plan
+                    </span>
+                    <i id="training-chevron" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                </a>
+                <!-- NEW: Training Sub-menu -->
+                <div id="training-submenu" class="pl-6 space-y-1 hidden">
+                    <a href="#" data-view="day1" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 hover:bg-indigo-50 text-sm">Day 1: Monday</a>
+                    <a href="#" data-view="day2" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 hover:bg-indigo-50 text-sm">Day 2: Tuesday</a>
+                    <a href="#" data-view="day3" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 hover:bg-indigo-50 text-sm">Day 3: Wednesday</a>
+                    <a href="#" data-view="day4" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 hover:bg-indigo-50 text-sm">Day 4: Thursday</a>
+                    <a href="#" data-view="day5" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 hover:bg-indigo-50 text-sm">Day 5: Friday</a>
+                    <a href="#" data-view="day6" class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 hover:bg-indigo-50 text-sm">Day 6: Saturday</a>
+                </div>
+
+                <a href="#" data-view="explore" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-indigo-50">
+                    <i class="fa-solid fa-rocket w-5"></i> Explore
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8">
+            <!-- Content will be injected here -->
+        </main>
+    </div>
+
+    <script>
+        const dietPlanData = {
+            client: {
+                name: "Devaraj Basavantakar",
+                goal: "Fat Loss (Obesity Class I)",
+                age: 24,
+                gender: "Male",
+                currentWeight: "93 kg",
+                bmr: 1900.85,
+                bmi: 30.81,
+                tdee: 3278.97,
+                calorieTarget: 2679, // TDEE - 600 kcal deficit (2678.97 rounded)
+                dietaryPreference: "Non-Vegetarian (Lean Protein Focus)",
+                activityLevel: "Intense (6-7 times/week)"
+            },
+            generalGuidelines: [
+                "Hydration: Drink 3-4 liters of water daily.",
+                "Portion Control: Use a kitchen scale for accurate measurements.",
+                "Macros: The plan focuses on a macronutrient breakdown of approximately 50% protein, 30% carbohydrates, and 20% healthy fats.",
+                "Micros: Emphasis is on nutrient-dense foods to ensure adequate intake of vitamins and minerals."
+            ],
+            weeks: {
+                week1: {
+                    title: "Week 1: Foundation and Portion Control - Muscle Gain",
+                    focus: "Establishing the caloric deficit and portion control, maximizing protein intake from lean sources like chicken and eggs.",
+                    meals: [
+                        {
+                            time: "Meal 1: Breakfast (approx 850 kcal)",
+                            items: [
+                                "Ragi Dosa (Minimal oil) - 3 medium (approx 150 g batter).",
+                                "Coconut/Peanut Chutney (minimal oil) - 1 small bowl (Implied side)."
+                            ],
+                            macros: "P:50 g, F:20 g, C:110 g",
+                            micros: "Iron, Calcium (from Ragi), Fiber",
+                            color: "bg-orange-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 2: Lunch (approx 950 kcal)",
+                            items: [
+                                "Chicken Curry (Lean breast, low-fat/yogurt base) - 150 g cooked chicken.",
+                                "Brown Rice/Parboiled Rice - 2.5 cups cooked (approx 250 g cooked).",
+                                "Tawa-fried Fish (Kingfish/Surmai, minimal oil) - 180 g cooked weight.",
+                            ],
+                            macros: "P:76 g, F:35 g, C:95 g",
+                            micros: "B Vitamins, Niacin, Healthy Fats, Manganese, Magnesium, Selenium, Omega-3 Fatty Acids, Vitamin D",
+                            color: "bg-green-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 3: Dinner (approx 879 kcal)",
+                            items: [
+                                "Sambar/Rasam (with extra lentils and vegetables) - 1 large bowl.",
+                                "Whole Wheat Chapati/Roti or Ragi Mudde - 4 medium servings.",
+                                "Egg Bhurji/Scramble - 4 whole eggs + 3 egg whites (minimal oil).",
+                                "Vegetable Stir-Fry (e.g., green beans, carrots) - 1 large bowl."
+                            ],
+                            macros: "P:60 g, F:19 g, C:112 g",
+                            micros: "Folic Acid, Potassium, Whole Grain Fiber, Vitamin B6, Choline, Complete Protein, Vitamin A/C/K",
+                            color: "bg-blue-100",
+                            alternative: "None listed."
+                        },
+                        { time: "Daily Total", item: "2679 kcal | Protein: 186 g, Carbs: 317 g, Fat: 74 g", macros: "", micros: "Target Calorie Intake is TDEE - 600 kcal deficit. This level is optimal for sustainable fat loss while fueling intense workouts.", color: "bg-indigo-100" }
+                    ]
+                },
+                week2: {
+                    title: "Week 2: Introducing Legumes and Variety - Muscle Gain",
+                    focus: "Replacing some meat/fish with vegetarian protein sources (paneer, soya, legumes) to increase fiber and micronutrient diversity. Now features easier, quick-prep alternatives.",
+                    meals: [
+                        {
+                            time: "Meal 1: Breakfast (approx 850 kcal)",
+                            items: [
+                                "Idli (Made with less oil/fermented batter) - 4 medium idlis.",
+                                "Tawa-Fried Eggs (2 whole eggs + 2 egg whites) - minimal oil, seasoned with pepper/salt.", // Replacement 1
+                                "Tomato/Onion Chutney (minimal oil) - 1 small bowl."
+                            ],
+                            macros: "P:53 g, F:22 g, C:105 g",
+                            micros: "Probiotics, B Vitamins, Choline, High-Quality Protein, Iron, Lycopene, Vitamin C",
+                            color: "bg-orange-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 2: Lunch (approx 950 kcal)",
+                            items: [
+                                "Brown Rice Vegetable Biryani (Less oil, extra veggies) - 3 cups cooked.",
+                                "Tawa-fried Paneer (Marinated, minimal oil) - 150 g paneer.",
+                                "Raita/Curd (Low-fat yogurt with cucumber) - 1 small bowl."
+                            ],
+                            macros: "P:72 g, F:33 g, C:100 g",
+                            micros: "Zinc, Potassium, B Vitamins, Calcium, Casein Protein, Probiotics, Hydration",
+                            color: "bg-green-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 3: Dinner (approx 879 kcal)",
+                            items: [
+                                "Besan Cheela/Pancake (Chickpea flour) - 3 medium (mixed with veggies).", // Replacement 2
+                                "Daal Tadka (Split yellow lentils) - 1.5 bowls cooked.",
+                                "Cucumber and Carrot Salad - 1 large bowl."
+                            ],
+                            macros: "P:61 g, F:19 g, C:112 g",
+                            micros: "Chickpea Protein, Fiber, Folic Acid, Lentil Protein, Magnesium, Vitamin K, Hydration",
+                            color: "bg-blue-100",
+                            alternative: "None listed."
+                        },
+                        { time: "Daily Total", item: "2679 kcal | Protein: 186 g, Carbs: 317 g, Fat: 74 g", macros: "", micros: "Target Calorie Intake is TDEE - 600 kcal deficit. This level is optimal for sustainable fat loss while fueling intense workouts.", color: "bg-indigo-100" }
+                    ]
+                },
+                week3: {
+                    title: "Week 3: Fiber Boost and Nutrient Density - Muscle Gain",
+                    focus: "Incorporating more whole legumes and high-fiber grains (like barley/jowar) into the main meals to improve satiety and digestive health.",
+                     meals: [
+                        {
+                            time: "Meal 1: Breakfast (approx 850 kcal)",
+                            items: [
+                                "Besan Cheela (Chickpea flour pancake) - 3 medium with grated vegetables.",
+                                "Boiled Eggs - 2 whole eggs + 2 whites.",
+                                "Mint/Coriander Chutney - 1 small bowl."
+                            ],
+                            macros: "P:55 g, F:21 g, C:107 g",
+                            micros: "Chickpea Protein, Folate, Vitamin D, Choline, Vitamin K, Antioxidants",
+                            color: "bg-orange-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 2: Lunch (approx 950 kcal)",
+                            items: [
+                                "Barley/Jowar Roti (or mixed millet) - 4 medium rotis.",
+                                "Quick South Indian Pepper Chicken Masala (Low-fat, tomato-based) - 180 g chicken breast.",
+                                "Green Salad (Onion, tomato, cucumber) - 1 large bowl."
+                            ],
+                            macros: "P:71 g, F:34 g, C:100 g",
+                            micros: "High Fiber, Manganese, Phosphorus, Potassium, Lean Protein, Hydration, Vitamin C, Antioxidants (Pepper)",
+                            color: "bg-green-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 3: Dinner (approx 879 kcal)",
+                            items: [
+                                "Whole Wheat Roti - 3 medium rotis.",
+                                "Channa Masala (Chickpea curry, minimal oil) - 1.5 bowls cooked.",
+                                "Low-fat Curd - 1 cup."
+                            ],
+                            macros: "P:60 g, F:19 g, C:110 g",
+                            micros: "Fiber, B Vitamins, Plant-based Protein, Iron, Zinc, Calcium, Probiotics",
+                            color: "bg-blue-100",
+                            alternative: "None listed."
+                        },
+                        { time: "Daily Total", item: "2679 kcal | Protein: 186 g, Carbs: 317 g, Fat: 74 g", macros: "", micros: "Target Calorie Intake is TDEE - 600 kcal deficit. This level is optimal for sustainable fat loss while fueling intense workouts.", color: "bg-indigo-100" }
+                    ]
+                },
+                week4: {
+                    title: "Week 4: Maximizing Lean Protein for Final Push - Muscle Gain",
+                    focus: "Toning down starches slightly while maintaining high protein and fiber intake, preparing the body for a maintenance phase.",
+                    meals: [
+                        {
+                            time: "Meal 1: Breakfast (approx 850 kcal)",
+                            items: [
+                                "Ragi Dosa (Minimal oil) - 3 medium (approx 150g batter).", 
+                                "Sprouts Salad (Mixed bean sprouts, boiled) - 1 cup.",
+                                "Scrambled Egg Whites - 6 egg whites."
+                            ],
+                            macros: "P:52 g, F:21 g, C:108 g",
+                            micros: "Iron, Quick Energy, Vitamin C, Live Enzymes, Pure Protein, Calcium (Ragi)",
+                            color: "bg-orange-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 2: Lunch (approx 950 kcal)",
+                            items: [
+                                "Less Rice + More Curry (Parboiled Rice) - 2 cups cooked (approx 200 g cooked).",
+                                "Grilled Chicken/Tofu Masala (No added oil after grilling) - 200 g grilled meat/tofu.",
+                                "Rasam (Clear, light soup) - 1 large bowl."
+                            ],
+                            macros: "P:73 g, F:34 g, C:100 g",
+                            micros: "Potassium, B Vitamins, High Quality Protein, Selenium, Digestion, Hydration",
+                            color: "bg-green-100",
+                            alternative: "None listed."
+                        },
+                        {
+                            time: "Meal 3: Dinner (approx 879 kcal)",
+                            items: [
+                                "Plain Ragi Dosa (minimal oil) - 3 medium dosas.", 
+                                "Palak Daal (Spinach and Lentil Curry) - 1.5 bowls cooked.",
+                                "Side of low-fat yogurt - 1 cup."
+                            ],
+                            macros: "P:61 g, F:19 g, C:109 g",
+                            micros: "Balanced Carb/Protein, Calcium, Iron, Vitamin A, Probiotics",
+                            color: "bg-blue-100",
+                            alternative: "None listed."
+                        },
+                        { time: "Daily Total", item: "2679 kcal | Protein: 186 g, Carbs: 317 g, Fat: 74 g", macros: "", micros: "Target Calorie Intake is TDEE - 600 kcal deficit. This level is optimal for sustainable fat loss while fueling intense workouts.", color: "bg-indigo-100" }
+                    ]
+                }
+            }
+        };
+
+        // New Training Plan Data Object
+        const trainingPlanData = {
+            summaryTable: [
+                { day: 1, focus: "PUSH A (Chest, Shoulders, Triceps)", goals: "Strength, Calorie Burn", cardio: "15 min LISS Post-Workout" },
+                { day: 2, focus: "PULL A (Back, Biceps, Traps)", goals: "Strength, Calorie Burn", cardio: "15 min LISS Post-Workout" },
+                { day: 3, focus: "LEGS A (Quads Focus)", goals: "Strength, Metabolic Conditioning", cardio: "20 min HIIT Post-Workout" },
+                { day: 4, focus: "PUSH B (Shoulders, Chest, Triceps)", goals: "Volume, Hypertrophy", cardio: "15 min LISS Post-Workout" },
+                { day: 5, focus: "PULL B (Back Thickness, Biceps)", goals: "Volume, Hypertrophy", cardio: "15 min LISS Post-Workout" },
+                { day: 6, focus: "LEGS B (Hamstring/Glute Focus)", goals: "Volume, Core Strength", cardio: "20 min HIIT Post-Workout" },
+                { day: 7, focus: "REST", goals: "Active Recovery (Walking/Stretching)", cardio: "Optional: Light Walk 30 min" }
+            ],
+            progressiveOverload: {
+                title: "🔑 Key to Quick Results: Progressive Overload",
+                text: "Since the client is a beginner, they will experience 'newbie gains.' To leverage this for quick results:",
+                points: [
+                    "<strong>Track Everything:</strong> Write down the weight and reps used for every set.",
+                    "<strong>Weekly Progression:</strong> Every week, aim to do one of the following for your main lifts (Bench Press, Dumbbell Row, Goblet Squat):",
+                    "<ul class='list-disc list-inside ml-6'><li>Increase the weight by the smallest increment (~1.25 kg).</li><li>Perform one extra repetition (rep).</li><li>Do the same work in less rest time.</li></ul>"
+                ]
+            },
+            detailedStructure: {
+                intro: "Perform <strong>3 sets</strong> for all exercises unless otherwise noted. Rest <strong>60-90 seconds</strong> between sets.",
+                days: [
+                    {
+                        title: "Day 1: Monday - PUSH A (Strength)",
+                        exercises: [
+                            { name: "Warm-up", setsReps: "5 min", focus: "Dynamic Stretching", note: "Arm Circles, Shoulder Rotations." },
+                            { name: "Dumbbell Bench Press", setsReps: "3 x 8-10", focus: "Compound/Chest", note: "Focus on controlling the negative (lowering) phase." },
+                            { name: "Seated Dumbbell Overhead Press", setsReps: "3 x 10-12", focus: "Shoulders", note: "Keep your lower back pressed against the bench." },
+                            { name: "Incline Dumbbell Press", setsReps: "3 x 10-12", focus: "Upper Chest", note: "Use a moderate incline." },
+                            { name: "Lateral Raises", setsReps: "3 x 12-15", focus: "Side Shoulders", note: "Use a lighter weight; focus on mind-muscle connection." },
+                            { name: "Cable Triceps Pushdown", setsReps: "3 x 10-12", focus: "Triceps", note: "Use rope attachment; squeeze at the bottom." },
+                            { name: "Core: Plank", setsReps: "3 x 60 sec", focus: "Core Stability", note: "Focus on squeezing glutes and bracing the core." },
+                            { name: "Cardio", setsReps: "15 min LISS", focus: "Post-Lift Walk/Elliptical", note: "Maintain 120-130 BPM." }
+                        ]
+                    },
+                    {
+                        title: "Day 2: Tuesday - PULL A (Strength)",
+                        exercises: [
+                            { name: "Warm-up", setsReps: "5 min", focus: "Dynamic Stretching", note: "Cat-cow, Shoulder Dislocations." },
+                            { name: "Dumbbell Rows (per arm)", setsReps: "3 x 8-10", focus: "Back Thickness", note: "Pull the elbow back towards your hip." },
+                            { name: "Lat Pulldown", setsReps: "3 x 10-12", focus: "Back Width", note: "Squeeze shoulder blades down and back." },
+                            { name: "Face Pulls", setsReps: "3 x 15", focus: "Rear Delt/Posture", note: "Crucial for shoulder health." },
+                            { name: "Dumbbell Shrugs", setsReps: "3 x 15", focus: "Traps", note: "Full range of motion." },
+                            { name: "Dumbbell Bicep Curls", setsReps: "3 x 10-12", focus: "Biceps", note: "Alternate arms, keep the curl controlled." },
+                            { name: "Core: Russian Twists", setsReps: "3 x 15 per side", focus: "Obliques", note: "Use a light dumbbell/plate if possible." },
+                            { name: "Cardio", setsReps: "15 min LISS", focus: "Post-Lift Walk/Elliptical", note: "Maintain 120-130 BPM." }
+                        ]
+                    },
+                    {
+                        title: "Day 3: Wednesday - LEGS A (Quads Focus + HIIT)",
+                        exercises: [
+                            { name: "Warm-up", setsReps: "5 min", focus: "Dynamic Stretching", note: "Leg Swings, Bodyweight Squats." },
+                            { name: "Barbell Squats", setsReps: "3 x 10-12", focus: "Compound/Quads", note: "Focus on form; keep your chest up and go to parallel." },
+                            { name: "Dumbbell Romanian Deadlifts (RDLs)", setsReps: "3 x 10-12", focus: "Hamstrings/Glutes", note: "Focus on a deep stretch in the hamstrings." },
+                            { name: "Walking Lunges", setsReps: "3 x 10 per leg", focus: "Quads/Glutes", note: "Focus on balance and knee over ankle." },
+                            { name: "Leg Extensions", setsReps: "3 x 12-15", focus: "Quads Isolation", note: "Squeeze at the top for 1 second." },
+                            { name: "Seated Calf Raises", setsReps: "4 x 15", focus: "Calves", note: "Slow and controlled." },
+                            { name: "Cardio", setsReps: "20 min HIIT", focus: "Metabolic Conditioning", note: "Sprint/Cycle 30 sec, Rest 60 sec. Repeat 12-15 times." }
+                        ]
+                    },
+                    {
+                        title: "Day 4: Thursday - PUSH B (Volume)",
+                        exercises: [
+                            { name: "Warm-up", setsReps: "5 min", focus: "Dynamic Stretching", note: "" },
+                            { name: "Push-ups (or Machine Chest Press)", setsReps: "3 x AMRAP (or 15)", focus: "Chest", note: "AMRAP = As Many Reps As Possible." },
+                            { name: "Seated Dumbbell Press (Lighter)", setsReps: "3 x 12-15", focus: "Shoulders", note: "Higher reps for muscle endurance." },
+                            { name: "Cable Flyes (Low pulley)", setsReps: "3 x 15", focus: "Lower/Inner Chest", note: "Focus on crossing hands slightly at the peak." },
+                            { name: "Reverse Pec Deck Flyes", setsReps: "3 x 15", focus: "Rear Delts", note: "Great isolation for posture." },
+                            { name: "Overhead Dumbbell Extension", setsReps: "3 x 12-15", focus: "Triceps Long Head", note: "Focus on a deep stretch." },
+                            { name: "Core: Side Plank", setsReps: "3 x 45 sec per side", focus: "Obliques", note: "" },
+                            { name: "Cardio", setsReps: "15 min LISS", focus: "Post-Lift Walk/Elliptical", note: "" }
+                        ]
+                    },
+                    {
+                        title: "Day 5: Friday - PULL B (Volume)",
+                        exercises: [
+                            { name: "Warm-up", setsReps: "5 min", focus: "Dynamic Stretching", note: "" },
+                            { name: "Seated Cable Row (Close grip)", setsReps: "3 x 12-15", focus: "Back Thickness", note: "Emphasize the squeeze in the mid-back." },
+                            { name: "Straight-Arm Pulldowns", setsReps: "3 x 15", focus: "Lats (Width)", note: "Keep arms straight, focus on contracting the lats." },
+                            { name: "Machine T-Bar Row", setsReps: "3 x 10-12", focus: "Mid-Back", note: "Or Bench Supported Row." },
+                            { name: "Hammer Curls", setsReps: "3 x 10-12", focus: "Forearms/Biceps", note: "Use a neutral grip." },
+                            { name: "Reverse Dumbbell Curls", setsReps: "3 x 15", focus: "Forearms", note: "Good for grip strength." },
+                            { name: "Core: Crunches", setsReps: "3 x 20", focus: "Upper Abs", note: "Controlled movement." },
+                            { name: "Cardio", setsReps: "15 min LISS", focus: "Post-Lift Walk/Elliptical", note: "" }
+                        ]
+                    },
+                    {
+                        title: "Day 6: Saturday - LEGS B (Hamstring/Glute Focus + HIIT)",
+                        exercises: [
+                            { name: "Warm-up", setsReps: "5 min", focus: "Dynamic Stretching", note: "" },
+                            { name: "Leg Press (High foot placement)", setsReps: "3 x 10-12", focus: "Glutes/Hams", note: "High foot placement emphasizes posterior chain." },
+                            { name: "Seated/Lying Leg Curls", setsReps: "3 x 12-15", focus: "Hamstring Isolation", note: "Slow eccentric (lowering) phase." },
+                            { name: "Dumbbell Step-ups", setsReps: "3 x 10 per leg", focus: "Glutes", note: "Use a secure box/bench; drive through the heel." },
+                            { name: "Leg Extensions (lighter weight)", setsReps: "3 x 15-20", focus: "Quads (Pump)", note: "Focus on high reps for a metabolic burn." },
+                            { name: "Standing Calf Raises", setsReps: "4 x 15", focus: "Calves", note: "Full stretch at the bottom." },
+                            { name: "Cardio", setsReps: "20 min HIIT", focus: "Metabolic Conditioning", note: "Sprint/Cycle 30 sec, Rest 60 sec. Repeat 12-15 times." }
+                        ]
+                    }
+                ]
+            },
+            recoveryNote: "<strong>Recovery Note:</strong> Given the intensity of this 6-day plan and the 600 kcal deficit, <strong>7-8 hours of sleep</strong> and adherence to the <strong>186 g protein</strong> diet plan are absolutely critical for rapid, safe results and preventing overtraining."
+        };
+
+        const mainContent = document.getElementById('main-content');
+        const navigation = document.getElementById('navigation');
+        let macroChart = null;
+        const totalWeeks = 4;
+        const progressState = {
+            completedWeeks: 0,
+            completionStatus: Array(totalWeeks).fill(false)
+        };
+
+        const bmiData = [
+            { label: 'Underweight', range: '< 18.5', color: 'bg-blue-400', risk: 'Potential nutritional deficiencies, osteoporosis, weakened immune system.' },
+            { label: 'Normal', range: '18.5 - 24.9', color: 'bg-green-400', risk: 'Generally considered healthy, lowest risk for major diseases.' },
+            { label: 'Overweight', range: '25.0 - 29.9', color: 'bg-yellow-400', risk: 'Increased risk of heart disease, type 2 diabetes, and high blood pressure.' },
+            { label: 'Obese (Class I)', range: '30.0 - 34.9', color: 'bg-red-500', risk: 'High risk of heart disease, stroke, diabetes, certain cancers, and joint problems.' } // Adjusted range and color for the new BMI
+        ];
+
+        function renderDashboard() {
+            const { client, generalGuidelines } = dietPlanData;
+            
+            mainContent.innerHTML = `
+                <div class="content-fade-in">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome to <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${client.name}!</h2>
+                    <p class="text-gray-600 mb-8">Your transformation journey begins now. This plan is specifically designed for your goal of ${client.goal} through a calculated calorie deficit and high-protein intake.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMI</p><p class="text-3xl font-bold text-red-500">${client.bmi}</p><p class="font-semibold text-red-500">Obesity Class I</p></div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm"><p class="text-sm text-gray-500">BMR</p><p class="text-3xl font-bold">${client.bmr.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm"><p class="text-sm text-gray-500">TDEE</p><p class="text-3xl font-bold">${client.tdee.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-600"><p class="text-sm text-gray-500">Target Deficit</p><p class="text-3xl font-bold text-indigo-600">${client.calorieTarget.toFixed(0)} <span class="text-base font-normal">kcal</span></p></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-xl font-bold mb-4">Client Information</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><strong>Name:</strong> ${client.name}</li>
+                                <li><strong>Age:</strong> ${client.age}</li>
+                                <li><strong>Weight:</strong> ${client.currentWeight}</li>
+                                <li><strong>Primary Goal:</strong> <span class="text-red-600">${client.goal}</span></li>
+                                <li><strong>Dietary Type:</strong> ${client.dietaryPreference}</li>
+                                <li><strong>Activity Level:</strong> ${client.activityLevel}</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-xl font-bold mb-4">Daily Macronutrient Goals</h3>
+                            <div class="chart-container h-64 max-h-64 mx-auto max-w-xs">
+                                <canvas id="macroChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                        <h3 class="text-xl font-bold mb-4">Progress Tracker</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            ${progressState.completionStatus.map((completed, index) => `
+                                <button data-week="${index + 1}" class="week-tracker-btn flex items-center justify-center p-4 rounded-lg shadow-sm transition-all duration-300 ${completed ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700'}">
+                                    <i class="fa-solid ${completed ? 'fa-check-circle' : 'fa-circle'} mr-2"></i> Week ${index + 1}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="text-xl font-bold mb-4">Understanding Your BMI</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            ${bmiData.map(item => `
+                                <div class="p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-center mb-2">
+                                        <div class="w-4 h-4 rounded-full ${item.color} mr-2"></div>
+                                        <p class="font-bold">${item.label}</p>
+                                    </div>
+                                    <p class="text-sm text-gray-600"><strong>Range:</strong> ${item.range}</p>
+                                    <p class="text-sm text-gray-500 mt-2">${item.risk}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-6 flex justify-center items-center">
+                            <i class="fa-solid fa-chart-bar text-9xl text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+            createMacroChart();
+        }
+
+        function createMacroChart() {
+            // New Target Macros from PDF: P: 186g, C: 317g, F: 74g. Total Cal: 2678 kcal.
+            const proteinGrams = 186;
+            const carbsGrams = 317;
+            const fatsGrams = 74;
+
+            const proteinCalories = proteinGrams * 4;
+            const carbsCalories = carbsGrams * 4;
+            const fatsCalories = fatsGrams * 9;
+            const ctx = document.getElementById('macroChart').getContext('2d');
+            if (macroChart) {
+                macroChart.destroy();
+            }
+            macroChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [`Protein (~${proteinGrams}g)`, `Carbs (~${carbsGrams}g)`, `Fats (~${fatsGrams}g)`],
+                    datasets: [{
+                        data: [proteinCalories, carbsCalories, fatsCalories],
+                        backgroundColor: ['#4f46e5', '#34d399', '#f59e0b'],
+                        borderColor: '#fff',
+                        borderWidth: 4,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        const totalCalories = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((context.raw / totalCalories) * 100).toFixed(1);
+                                        label += `${context.raw.toFixed(0)} kcal (${percentage}%)`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderWeek(weekKey) {
+            const weekData = dietPlanData.weeks[weekKey];
+            mainContent.innerHTML = `
+                <div class="content-fade-in">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Diet Plan - Fat Loss</h2>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-6">${weekData.title}</h3>
+                    <p class="text-gray-600 mb-8 font-medium border-l-4 border-indigo-400 pl-3 py-1 bg-indigo-50 rounded-lg">${weekData.focus}</p>
+                    <div class="space-y-6">
+                        ${weekData.meals.map(meal => {
+                            if (meal.time.includes('Daily Total')) {
+                                return `
+                                    <div class="bg-indigo-100 rounded-xl shadow-sm">
+                                        <button class="collapsible-header w-full flex items-center justify-between p-6 focus:outline-none">
+                                            <h3 class="text-xl font-bold text-indigo-800">${meal.time}</h3>
+                                            <i class="fa-solid fa-chevron-down text-indigo-500"></i>
+                                        </button>
+                                        <div class="collapsible-content border-t border-indigo-300 expanded">
+                                            <div class="p-6">
+                                                <p class="font-medium text-indigo-800">${meal.item}</p>
+                                                <p class="text-sm text-indigo-600 mt-2"><strong>Notes:</strong> ${meal.micros}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                return `
+                                    <div class="bg-white rounded-xl shadow-sm border-l-4 ${meal.color === 'bg-orange-100' ? 'border-orange-500' : meal.color === 'bg-green-100' ? 'border-green-500' : 'border-blue-500' || meal.color === 'bg-gray-100' ? 'border-gray-500': ''} p-6">
+                                        <h3 class="text-xl font-bold text-gray-900 mb-2">${meal.time}</h3>
+                                        <div class="pl-4 border-l-2 border-gray-200 space-y-2">
+                                            <ul class="list-disc list-inside space-y-1 text-gray-800">
+                                                ${meal.items.map(item => `<li>${item}</li>`).join('')}
+                                            </ul>
+                                            ${meal.alternative && meal.alternative !== 'None listed.' ? `
+                                            <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                <p class="font-medium text-gray-800 flex items-center">
+                                                    <i class="fa-solid fa-sync-alt text-red-500 text-sm mr-2"></i>
+                                                    Alternative: <span class="ml-1 font-normal">${meal.alternative}</span>
+                                                </p>
+                                            </div>` : ''}
+                                            <div class="grid grid-cols-2 mt-4 gap-4">
+                                                <div class="p-3 bg-indigo-50 rounded-lg">
+                                                    <p class="text-sm font-semibold text-indigo-700">Macros Breakdown</p>
+                                                    <p class="text-sm text-indigo-600">${meal.macros}</p>
+                                                </div>
+                                                <div class="p-3 bg-teal-50 rounded-lg">
+                                                    <p class="text-sm font-semibold text-teal-700">Key Micronutrients</p>
+                                                    <p class="text-sm text-teal-600">${meal.micros}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderKeyNotes() {
+            mainContent.innerHTML = `
+                <div class="content-fade-in">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Key Notes for the Diet Plan (Fat Loss)</h2>
+                    
+                    <!-- Nutritional Calculations -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fa-solid fa-calculator text-blue-500 mr-3"></i> Nutritional Calculations
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>BMI:</strong> ${dietPlanData.client.bmi.toFixed(2)} (Classified as Obesity Class I. Fat loss is a priority.)</li>
+                            <li><strong>BMR:</strong> ~${dietPlanData.client.bmr.toFixed(0)} kcal/day</li>
+                            <li><strong>TDEE:</strong> ~${dietPlanData.client.tdee.toFixed(0)} kcal/day</li>
+                            <li><strong>Target Calories (Fat Loss):</strong> ~${dietPlanData.client.calorieTarget.toFixed(0)} kcal/day (600 kcal deficit for sustainable loss)</li>
+                            <li><strong>Macro Split (Calculated from daily totals P: 186g, C: 317g, F: 74g):</strong>
+                                <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                                    <li>Protein: ~28% (~186 g/day) - High for muscle preservation.</li>
+                                    <li>Fat: ~25% (~74 g/day) - Balanced for hormonal health.</li>
+                                    <li>Carbohydrates: ~47% (~317 g/day) - To fuel intense workouts.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Dietary Guidelines -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fa-solid fa-leaf text-green-500 mr-3"></i> Dietary Guidelines
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>Protein Sources:</strong> Chicken breast, Fish (lean varieties), Eggs, Paneer (tawa-fried), Dals, Soya, Besan, Sprouts.</li>
+                            <li><strong>Carb Sources:</strong> Brown Rice/Parboiled Rice, Ragi Dosa/Mudde, Idli, Millets (Barley/Jowar), Whole Wheat Roti.</li>
+                            <li><strong>Fat Sources:</strong> Minimal cooking oil (1-2 tsp per meal), Low-fat curd/yogurt, Coconut (in moderation).</li>
+                            <li><strong>Cooking Method:</strong> Focus on Tawa-fry, Stewing, or Curries with a minimal oil/yogurt base to keep fat low.</li>
+                            <li><strong>Hydration:</strong> 3–3.5 L water/day.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Meal Planning Notes -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fa-solid fa-clock text-indigo-500 mr-3"></i> Meal Planning Notes
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>Protein Distribution:</strong> Aim to consume 40-60g of protein in your main meals (Lunch/Dinner) to maximize Muscle Protein Synthesis (MPS).</li>
+                            <li><strong>Lunch:</strong> Often the largest meal to replenish energy and nutrients for the second half of the day.</li>
+                            <li><strong>Dinner:</strong> Balanced protein and fiber for overnight repair and satiety.</li>
+                            <li><strong>Portion Control is Key:</strong> Stick strictly to the listed quantities (e.g., 2.5 cups cooked rice, 180g cooked fish) to maintain the deficit.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Lifestyle & Training Notes -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fa-solid fa-dumbbell text-purple-500 mr-3"></i> Lifestyle & Training Notes
+                        </h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>Workout:</strong> Strength training 6–7 days/week (Intense level). Progressive overload is vital for muscle growth/retention during fat loss.</li>
+                            <li><strong>Pre-Workout (30–45 min):</strong> Light carbs (banana or small dosa) for quick energy.</li>
+                            <li><strong>Post-Workout (within 1 hr):</strong> Ensure your post-workout meal provides adequate protein and carbs for recovery.</li>
+                            <li><strong>Sleep:</strong> Minimum 7–8 hrs/night is critical for hormonal balance and fat metabolism.</li>
+                            <li><strong>Alcohol/Smoking:</strong> Minimize/Eliminate, as both significantly hinder fat loss, recovery, and nutrient absorption.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // DELETED: renderTrainingPlan() function removed
+
+        // NEW function to render a single workout day
+        function renderWorkoutDay(dayIndex) {
+            const { detailedStructure, recoveryNote } = trainingPlanData;
+            const day = detailedStructure.days[dayIndex];
+
+            if (!day) return; // Safety check
+
+            mainContent.innerHTML = `
+                <div class="content-fade-in">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">${day.title}</h2>
+                    
+                    <!-- Detailed Structure -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                        <p class="text-gray-700 mb-6">${detailedStructure.intro}</p>
+                        
+                        <table class="workout-table">
+                            <thead>
+                                <tr>
+                                    <th>Exercise</th>
+                                    <th>Sets × Reps</th>
+                                    <th>Focus</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${day.exercises.map(ex => `
+                                    <tr>
+                                        <td>
+                                            <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise tutorial')}" target="_blank" rel="noopener noreferrer">
+                                                ${ex.name} <i class="fa-solid fa-external-link-alt"></i>
+                                            </a>
+                                        </td>
+                                        <td>${ex.setsReps}</td>
+                                        <td>${ex.focus}</td>
+                                        <td>${ex.note}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Recovery Note -->
+                    <div class="bg-yellow-50 p-6 rounded-xl shadow-sm border-l-4 border-yellow-400">
+                        <p class="text-yellow-800 leading-relaxed">${recoveryNote}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderExplore() {
+            mainContent.innerHTML = `
+                <div class="content-fade-in">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Thank you for choosing <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${dietPlanData.client.name}!</h2>
+                    <p class="text-gray-600 mb-8">Your transformation journey begins now, and we're thrilled to be a part of your path to a healthier, stronger, and more confident you. Whether you're a seasoned athlete or just starting out, our program is designed to support you every step of the way.</p>
+
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Here are other plans that you can choose:</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <!-- Plan 1 -->
+                        <div class="bg-blue-50 p-6 rounded-xl shadow-sm flex flex-col items-center text-center border-t-4 border-blue-500">
+                            <i class="fa-solid fa-dumbbell text-4xl text-blue-500 mb-4"></i>
+                            <h4 class="text-xl font-bold text-blue-600">Workout Plan</h4>
+                            <p class="text-sm text-gray-500 mt-2 text-left">Comprehensive workout plan designed for building muscle with professional guidance.</p>
+                            <ul class="list-disc list-inside text-gray-700 text-left mt-4 space-y-2 w-full">
+                                <li>Specialized workout routine</li>
+                                <li>Progressive training plan</li>
+                                <li>Assigned to your goals</li>
+                                <li>Tailored to fitness level</li>
+                                <li>One session with expert trainer</li>
+                            </ul>
+                            <p class="text-2xl font-bold mt-4">
+                                <span class="text-base font-normal text-gray-500 line-through">₹2000</span>
+                                ₹799<span class="text-base font-normal">/month</span>
+                            </p>
+                        </div>
+                        <!-- Plan 2 -->
+                        <div class="bg-green-50 p-6 rounded-xl shadow-lg flex flex-col items-center text-center border-t-4 border-green-500 transform transition-transform duration-300 scale-105">
+                            <i class="fa-solid fa-star text-4xl text-green-500 mb-4"></i>
+                            <h4 class="text-xl font-bold text-green-600">Total Transformation</h4>
+                            <p class="text-sm text-gray-500 mt-2 text-left">Complete diet and workout plan with weekly trainer consultation and daily follow-ups.</p>
+                            <ul class="list-disc list-inside text-gray-700 text-left mt-4 space-y-2 w-full">
+                                <li>Personalised diet & workout combined plan</li>
+                                <li>Assigned to your goals</li>
+                                <li>Weekly trainer sessions</li>
+                                <li>Daily follow-up support</li>
+                                <li>Royalty program eligible</li>
+                                <li>Get 1 month FREE with daily updates</li>
+                            </ul>
+                            <p class="text-2xl font-bold mt-4">
+                                <span class="text-base font-normal text-gray-500 line-through">₹5000</span>
+                                ₹3499<span class="text-base font-normal">/month</span>
+                            </p>
+                        </div>
+                        <!-- Plan 3 -->
+                        <div class="bg-orange-50 p-6 rounded-xl shadow-sm flex flex-col items-center text-center border-t-4 border-orange-500">
+                            <i class="fa-solid fa-running text-4xl text-orange-500 mb-4"></i>
+                            <h4 class="text-xl font-bold text-orange-600">General Fitness</h4>
+                            <p class="text-sm text-gray-500 mt-2 text-left">Balanced diet and workout plan with one trainer session to kickstart your fitness journey.</p>
+                            <ul class="list-disc list-inside text-gray-700 text-left mt-4 space-y-2 w-full">
+                                <li>Balanced diet plan</li>
+                                <li>Basic workout routine</li>
+                                <li>One trainer consultation</li>
+                                <li>BMI report included</li>
+                                <li>Sustainable approach</li>
+                            </ul>
+                            <p class="text-2xl font-bold mt-4">
+                                <span class="text-base font-normal text-gray-500 line-through">₹2000</span>
+                                ₹999<span class="text-base font-normal">/month</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-12">
+                        <a href="https://kn0x-fit.com/" target="_blank" class="text-gray-600 mb-6 font-semibold inline-block text-lg text-red-500 hover:underline transition-colors">KN0X-FIT - Built for Change, Designed for You</a>
+                        <div class="flex justify-center items-center gap-6 mt-4">
+                            <!-- WhatsApp -->
+                            <a href="https://wa.me/919380422603" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-green-500 transition-colors">
+                                <i class="fa-brands fa-whatsapp text-3xl" style="color: #25D366;"></i>
+                                <span>+91 9380422603</span>
+                            </a>
+                            <!-- Email -->
+                            <a href="mailto:info@kn0x-fit.com" class="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors">
+                                <i class="fa-solid fa-envelope text-3xl" style="color: #0072C6;"></i>
+                                <span>info@kn0x-fit.com</span>
+                            </a>
+                            <!-- Instagram -->
+                            <a href="https://www.instagram.com/kn0x_fit/profilecard/?igsh=bWFiMzlkanppYTh1" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors">
+                                <i class="fa-brands fa-instagram text-3xl" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf4f7 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);-webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                                <span>@KN0X_FIT</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        mainContent.addEventListener('click', (e) => {
+            const header = e.target.closest('.collapsible-header');
+            if (header) {
+                const content = header.nextElementSibling;
+                // Toggle expansion
+                header.classList.toggle('expanded');
+                content.classList.toggle('expanded');
+                
+                // Close others if open (optional, but good UX for mobile)
+                document.querySelectorAll('.collapsible-header').forEach(otherHeader => {
+                    if (otherHeader !== header && otherHeader.classList.contains('expanded')) {
+                        otherHeader.classList.remove('expanded');
+                        otherHeader.nextElementSibling.classList.remove('expanded');
+                    }
+                });
+            }
+
+            const trackerBtn = e.target.closest('.week-tracker-btn');
+            if (trackerBtn) {
+                const weekIndex = parseInt(trackerBtn.dataset.week) - 1;
+                progressState.completionStatus[weekIndex] = !progressState.completionStatus[weekIndex];
+                renderDashboard();
+            }
+        });
+
+        function setActiveLink(view) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Find the link to activate
+            const activeLink = document.querySelector(`.nav-link[data-view="${view}"]`);
+            if (activeLink) {
+                 activeLink.classList.add('active');
+                 
+                 // If it's a submenu item, open the submenu and activate parent
+                 const submenu = activeLink.closest('#training-submenu');
+                 if (submenu) {
+                     submenu.classList.remove('hidden');
+                     const parentToggle = document.getElementById('training-toggle');
+                     parentToggle.classList.add('active'); // Style parent
+                     document.getElementById('training-chevron').classList.add('rotate-180'); // Open chevron
+                 }
+            }
+        }
+
+        navigation.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const link = e.target.closest('.nav-link');
+            if (!link) return; // Clicked outside a link
+
+            // Handle Toggle Click
+            if (link.id === 'training-toggle') {
+                const submenu = document.getElementById('training-submenu');
+                const chevron = document.getElementById('training-chevron');
+                submenu.classList.toggle('hidden');
+                chevron.classList.toggle('rotate-180');
+                // Manually add/remove active class for the toggle itself
+                link.classList.toggle('active', !submenu.classList.contains('hidden'));
+                return; 
+            }
+
+            // Handle All Other Navigation Link Clicks
+            const view = link.dataset.view;
+            setActiveLink(view); 
+
+            if (view === 'dashboard') {
+                renderDashboard();
+            } else if (view === 'explore') {
+                renderExplore();
+            } else if (view === 'keyNotes') {
+                renderKeyNotes();
+            } else if (view.startsWith('week')) {
+                renderWeek(view);
+            } else if (view.startsWith('day')) {
+                const dayIndex = parseInt(view.replace('day', '')) - 1;
+                renderWorkoutDay(dayIndex);
+            }
+        });
+        
+        setActiveLink('dashboard');
+        renderDashboard();
+
+    </script>
+</body>
+</html>
