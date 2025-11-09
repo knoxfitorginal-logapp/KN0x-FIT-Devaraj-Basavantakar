@@ -91,12 +91,12 @@
 <body class="text-gray-800">
 
     <!-- Mobile Header -->
-    <div id="mobile-header-bar" class="lg:hidden bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30">
-        <button id="mobile-menu-toggle" class="mobile-menu-toggle text-indigo-600 text-2xl active:scale-95 transition-transform">
+    <div id="mobile-header-bar" class="lg:hidden bg-white shadow-md p-2 flex justify-between items-center sticky top-0 z-30">
+        <button id="mobile-menu-toggle" class="mobile-menu-toggle text-indigo-600 text-2xl active:scale-95 transition-transform p-2">
             <i class="fa-solid fa-bars"></i>
         </button>
-        <img src="./src/assets/final_logo-removebg-preview (1).png" alt="KN0X-FIT Logo" class="h-12 w-auto">
-        <div class="w-8"></div> <!-- Spacer -->
+        <img src="./src/assets/final_logo-removebg-preview (1).png" alt="KN0X-FIT Logo" class="h-14 w-auto">
+        <div class="w-10"></div> <!-- Spacer -->
     </div>
 
     <!-- Mobile Overlay -->
@@ -1091,6 +1091,9 @@
             
             const view = link.dataset.view;
             if (view) {
+                // Scroll to top on new page view
+                window.scrollTo(0, 0);
+                
                 if (view.startsWith('training-day-')) {
                     const dayIndex = parseInt(view.split('-')[2]);
                     renderWorkoutDay(dayIndex);
