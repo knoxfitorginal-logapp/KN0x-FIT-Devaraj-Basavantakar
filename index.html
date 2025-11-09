@@ -111,7 +111,7 @@
         <button id="mobile-menu-toggle" class="mobile-menu-toggle text-indigo-600 text-2xl active:scale-95 transition-transform p-2">
             <i class="fa-solid fa-bars"></i>
         </button>
-        <!-- Logo with placeholder -->
+        <!-- Logo with local path -->
         <img src="./src/assets/final_logo-removebg-preview (1).png" 
              alt="KN0X-FIT Logo" 
              class="h-14 w-auto">
@@ -126,7 +126,7 @@
         <!-- Sidebar Navigation -->
         <aside id="sidebar" class="bg-white w-64 p-4 lg:p-6 shadow-md fixed top-0 left-0 h-full z-20 transform -translate-x-full transition-transform lg:translate-x-0 lg:relative lg:flex-shrink-0 lg:shadow-lg overflow-y-auto">
             <div class="flex items-center justify-center mb-8 w-full">
-                <!-- Logo with placeholder -->
+                <!-- Logo with local path -->
                 <img src="./src/assets/final_logo-removebg-preview (1).png" 
                      alt="KN0X-FIT Logo" 
                      class="h-20 md:h-24 w-auto">
@@ -574,7 +574,14 @@
                         </div>
                         <div class="bg-white p-6 rounded-xl shadow-sm">
                             <h3 class="text-xl font-bold mb-4">Daily Macronutrient Goals</h3>
-                            <div class="chart-container h-64 max-h-64 mx-auto max-w-xs">
+                            <!-- Skeleton Loader (Visible immediately) -->
+                            <div id="chart-skeleton" class="chart-container h-64 max-h-64 mx-auto max-w-xs flex flex-col items-center justify-center space-y-3 p-4 bg-gray-50 rounded-lg animate-pulse">
+                                <div class="w-3/4 h-3 bg-gray-300 rounded"></div>
+                                <div class="w-full h-40 bg-gray-300 rounded-full"></div>
+                                <div class="w-1/2 h-3 bg-gray-300 rounded"></div>
+                            </div>
+                            <!-- Actual Chart (Hidden initially) -->
+                            <div id="chart-wrapper" class="chart-container h-64 max-h-64 mx-auto max-w-xs hidden">
                                 <canvas id="macroChart"></canvas>
                             </div>
                         </div>
@@ -609,10 +616,11 @@
                     </div>
                 </div>
             `;
-            createMacroChart();
+            initMacroChart(); // Call the new initialization function
         }
 
-        function createMacroChart() {
+        // Renamed function to focus purely on chart instantiation
+        function _createChartInstance() {
             // NEW Targets: ~2600 kcal | P: 158g (24%) | F: 90g (31%) | C: 290g (45%)
             const proteinGrams = 158;
             const carbsGrams = 290;
@@ -670,6 +678,30 @@
                     }
                 }
             });
+        }
+        
+        // New function to wait for Chart.js to load before rendering the chart
+        function initMacroChart() {
+            const chartSkeleton = document.getElementById('chart-skeleton');
+            const chartWrapper = document.getElementById('chart-wrapper');
+            
+            // 1. Check if the Chart global object is defined (meaning the deferred script has loaded)
+            if (typeof Chart !== 'undefined') {
+                // 2. Library loaded, create the chart
+                _createChartInstance(); 
+                
+                // 3. Hide skeleton, show chart (smoother transition)
+                if (chartSkeleton && chartWrapper) {
+                    chartSkeleton.classList.add('hidden');
+                    chartWrapper.classList.remove('hidden');
+                }
+            } else {
+                // 4. Library not loaded yet (Polling): wait 50ms and check again
+                if (chartSkeleton) {
+                    chartSkeleton.classList.remove('hidden'); // Ensure skeleton is visible while waiting
+                }
+                setTimeout(initMacroChart, 50);
+            }
         }
 
         function renderWeek(weekKey) {
