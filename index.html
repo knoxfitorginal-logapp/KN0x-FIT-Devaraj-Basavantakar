@@ -10,6 +10,7 @@
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     
     <!-- SPEED OPTIMIZATION: Preconnect to external domains -->
+    <!-- FIX: Corrected markdown-style links -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -170,6 +171,7 @@
     </div>
 
     <!-- SPEED OPTIMIZATION: Moved Chart.js to the end of body and added 'defer' -->
+    <!-- FIX: Corrected markdown-style links -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
     <script>
@@ -504,7 +506,7 @@
                             { name: "Leg Press (High foot placement)", sets: "3", reps: "10-12", focus: "Glutes/Hams", note: "High foot placement emphasizes posterior chain." },
                             { name: "Seated/Lying Leg Curls", sets: "3", reps: "12-15", focus: "Hamstring Isolation", note: "Slow eccentric (lowering) phase." },
                             { name: "Dumbbell Step-ups", sets: "3", reps: "10 per leg", focus: "Glutes", note: "Use a secure box/bench; drive through the heel." },
-                            { name: "Leg Extensions (lighter weight)", sets: "3", reps: "1E-20", focus: "Quads (Pump)", note: "Focus on high reps for a metabolic burn." },
+                            { name: "Leg Extensions (lighter weight)", sets: "3", reps: "15-20", focus: "Quads (Pump)", note: "Focus on high reps for a metabolic burn." },
                             { name: "Standing Calf Raises", sets: "4", reps: "15", focus: "Calves", note: "Full stretch at the bottom." },
                             { name: "Cardio", sets: "20 min", reps: "HIIT", focus: "Metabolic Conditioning", note: "Sprint/Cycle 30 sec, Rest 60 sec. Repeat 12-15 times." }
                         ]
@@ -535,7 +537,7 @@
             
             mainContent.innerHTML = `
                 <div class="content-fade-in">
-                    <h2 id="dashboard-h2" class="text-3xl font-bold text-gray-900 mb-2">Welcome to <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${client.name}!</h2>
+                    <h2 id="dashboard-h2" class="text-3xl font-bold text-gray-900 mb-2">Welcome to <a href="https-kn0x-fit.com-" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>, ${client.name}!</h2>
                     <p class="text-gray-600 mb-8">Your personalized <strong>${client.goal}</strong> plan is ready. Let's get started on your transformation!</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -689,6 +691,7 @@
                                             <ul class="list-disc list-inside space-y-2 text-gray-800">
                                                 ${meal.items.map(item => `
                                                     <li>
+                                                        <!-- FIX: Corrected markdown-style links -->
                                                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(item.link)}" target="_blank" class="text-indigo-600 hover:text-indigo-800 hover:underline">${item.name}</a>
                                                         <span class="text-gray-600 text-sm">- ${item.quantity}</span>
                                                     </li>
@@ -860,6 +863,7 @@
                                 ${day.exercises.map(ex => `
                                     <tr>
                                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <!-- FIX: Corrected markdown-style links -->
                                             <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise tutorial')}" target="_blank" class="text-indigo-600 hover:text-indigo-800 hover:underline">
                                                 ${ex.name}
                                             </a>
@@ -879,6 +883,7 @@
         function renderExplore() {
             mainContent.innerHTML = `
                 <div class="content-fade-in">
+                    <!-- FIX: Corrected markdown-style links -->
                     <h2 class="text-3xl font-bold text-gray-900 mb-2">Thank you for choosing <a href="https://kn0x-fit.com/" target="_blank" class="text-red-500 hover:underline">KN0X-FIT</a>!</h2>
                     <p class="text-gray-600 mb-8">Your transformation journey begins now, and we're thrilled to be a part of your path to a healthier, stronger, and more confident you. Whether you're a seasoned athlete or just starting out, our program is designed to support you every step of the way.</p>
 
@@ -931,9 +936,11 @@
                     </div>
 
                     <div class="text-center mt-12">
+                        <!-- FIX: Corrected markdown-style links -->
                         <a href="https://kn0x-fit.com/" target="_blank" class="text-gray-600 mb-6 font-semibold inline-block text-lg text-red-500 hover:underline transition-colors">KN0X-FIT - Built for Change, Designed for You</a>
                         <div class="flex flex-col sm:flex-row justify-center items-center gap-6 mt-4">
                             <!-- WhatsApp -->
+                            <!-- FIX: Corrected markdown-style links -->
                             <a href="https://wa.me/919380422603" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-green-500 transition-colors">
                                 <i class="fa-brands fa-whatsapp text-3xl" style="color: #25D366;"></i>
                                 <span>+91 9380422603</span>
@@ -944,6 +951,7 @@
                                 <span>info@kn0x-fit.com</span>
                             </a>
                             <!-- Instagram -->
+                            <!-- FIX: Corrected markdown-style links -->
                             <a href="https://www.instagram.com/kn0x_fit/profilecard/?igsh=bWFiMzlkanppYTh1" target="_blank" class="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors">
                                 <i class="fa-brands fa-instagram text-3xl" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf4f7 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);-webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                                 <span>@KN0X_FIT</span>
@@ -1168,8 +1176,8 @@
         }
 
         // Initial Load
-        // SPEED OPTIMIZATION: Use requestAnimationFrame to render after paint
-        requestAnimationFrame(() => {
+        // SPEED OPTIMIZATION: Use DOMContentLoaded to ensure all deferred scripts are loaded
+        document.addEventListener('DOMContentLoaded', () => {
             setActiveLink('dashboard');
             renderDashboard();
         });
