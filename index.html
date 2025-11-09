@@ -8,8 +8,14 @@
     <!-- Application Structure Plan: A dashboard-style SPA with a main overview and tabbed navigation for each of the 4 weeks, a new "Key Notes" section, a new "Training Plan" section, and a final "Explore" page. The user flow is: Overview -> Select Week -> View Daily Meals -> Read Key Notes -> View Training Plan -> Explore other services. -->
     <!-- Visualization & Content Choices: 1. Client Metrics (BMI/BMR/TDEE): Goal=Inform, Method=Styled HTML cards with a CSS bar for BMI, Interaction=None, Justification=Clear, static display of core data. 2. Macro Split: Goal=Inform, Method=Donut Chart, Interaction=Hover for tooltips, Justification=Visually represents dietary proportions effectively, Library=Chart.js. 3. Weekly Plans: Goal=Organize/Inform, Method=Tabs with meal cards, Interaction=Click tabs to switch weeks. 4. Key Notes: Goal=Educate/Inform, Method=Grid of stylized cards with icons and text, Interaction=None, Justification=Breaks down complex information into digestible, easy-to-scan sections. 5. Explore Page: Goal=Engage/Inform/Convert, Method=Styled cards with plan details and interactive contact links, Interaction=Clickable links to social media and contact info. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    
+    <!-- SPEED OPTIMIZATION: Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SPEED OPTIMIZATION: Chart.js moved to end of body -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -29,12 +35,13 @@
         .nav-link:active, .mobile-menu-toggle:active, .week-tracker-btn:active {
             transform: scale(0.95);
         }
+        /* SPEED OPTIMIZATION: Faster, smoother animation */
         .content-fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+            animation: fadeIn 0.3s ease-in-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .collapsible-content {
             max-height: 0;
@@ -161,6 +168,9 @@
             <!-- Content will be injected here -->
         </main>
     </div>
+
+    <!-- SPEED OPTIMIZATION: Moved Chart.js to the end of body and added 'defer' -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
     <script>
         const dietPlanData = {
@@ -410,7 +420,8 @@
                     { day: "Day 6: Saturday", focus: "LEGS B (Hamstring/Glute Focus)", goal: "Volume, Core Strength", cardio: "20 min HIIT Post-Workout" },
                     { day: "Day 7: Sunday", focus: "REST", goal: "Active Recovery (Walking/Stretching)", cardio: "Optional: Light Walk 30 min" }
                 ],
-                recoveryNote: "Given the intensity of this 6-day plan and the caloric deficit, 7-8 hours of sleep and adherence to the ~158g protein diet plan are absolutely critical for rapid, safe results and preventing overtraining."
+                // UPDATED: Added more recovery notes
+                recoveryNote: "Given the intensity of this 6-day plan and the caloric deficit, <strong>7-8 hours of sleep</strong> and adherence to the <strong>~158g protein</strong> diet plan are absolutely critical for rapid, safe results. <br><br><strong>Additional Notes:</strong><br> - Listen to your body. If you feel excessive fatigue or pain (not just soreness), take an extra rest day.<br> - Stay hydrated. Drink water consistently throughout the day, especially on training days.<br> - Consider light stretching or foam rolling on your rest day (Day 7) to aid muscle recovery."
             },
             detailedStructure: {
                 sets: "3 sets for all exercises unless otherwise noted.",
@@ -493,7 +504,7 @@
                             { name: "Leg Press (High foot placement)", sets: "3", reps: "10-12", focus: "Glutes/Hams", note: "High foot placement emphasizes posterior chain." },
                             { name: "Seated/Lying Leg Curls", sets: "3", reps: "12-15", focus: "Hamstring Isolation", note: "Slow eccentric (lowering) phase." },
                             { name: "Dumbbell Step-ups", sets: "3", reps: "10 per leg", focus: "Glutes", note: "Use a secure box/bench; drive through the heel." },
-                            { name: "Leg Extensions (lighter weight)", sets: "3", reps: "15-20", focus: "Quads (Pump)", note: "Focus on high reps for a metabolic burn." },
+                            { name: "Leg Extensions (lighter weight)", sets: "3", reps: "1E-20", focus: "Quads (Pump)", note: "Focus on high reps for a metabolic burn." },
                             { name: "Standing Calf Raises", sets: "4", reps: "15", focus: "Calves", note: "Full stretch at the bottom." },
                             { name: "Cardio", sets: "20 min", reps: "HIIT", focus: "Metabolic Conditioning", note: "Sprint/Cycle 30 sec, Rest 60 sec. Repeat 12-15 times." }
                         ]
@@ -1157,8 +1168,11 @@
         }
 
         // Initial Load
-        setActiveLink('dashboard');
-        renderDashboard();
+        // SPEED OPTIMIZATION: Use requestAnimationFrame to render after paint
+        requestAnimationFrame(() => {
+            setActiveLink('dashboard');
+            renderDashboard();
+        });
 
     </script>
 </body>
